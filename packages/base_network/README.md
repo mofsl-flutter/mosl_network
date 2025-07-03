@@ -1,39 +1,54 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# base_network
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+A Dart package providing a robust, extensible network client built on top of Dio, with support for:
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+- HTTP/2 and Brotli compression
+- Request/response logging
+- Firebase Performance monitoring
+- Sentry error tracking
+- Caching and retry logic
+- Customizable interceptors
+- Authentication and session management
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **Dio-based HTTP client** with advanced configuration
+- **Interceptor support** for logging, caching, and monitoring
+- **Firebase Performance** integration via `firebase_performance_dio`
+- **Sentry** integration for error reporting
+- **Retry logic** for network resilience
+- **Custom error handling** and session management
+- Supports methods like GET, POST, UPLOAD, DOWNLOAD
 
-## Getting started
+## Getting Started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add to your `pubspec.yaml`:
 
-## Usage
+```yaml
+dependencies:
+  base_network:
+    path: packages/base_network
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
 
-```dart
-const like = 'sample';
-```
+Extend the `BaseNetworkClient` class to create your own network client:
 
-## Additional information
+then give your network client a cachemanagr also a token manager
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+the token manager object to be created with extending base_token_manager
+
+and impl the methods and provide the response it expects 
+
+now once you got the response in your network client you can comiple it to the userdefined classes 
+
+error handling is alos done there refer DioImpl for more details
+
+
+
+
+the cache saving part is done in the cache manager
+
+and getting the response from the cache and passing to ui is don in base_interceptor also its done via callback 
+
+
+The error handling done with ErrorException class which is a custom class that extends Exception 
+
