@@ -142,6 +142,5 @@ class ApiCallFailureDIO extends ApiCallError {
 
 class BaseUrlFailedException implements Exception {
   final String message;
-
-  BaseUrlFailedException(this.message);
+  BaseUrlFailedException(this.message,);
 }

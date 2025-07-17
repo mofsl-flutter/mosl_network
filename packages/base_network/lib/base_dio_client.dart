@@ -139,6 +139,12 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
           if (CancelToken.isCancel(e)) {
             throw DioRequestCancelledException();
           }
+          if (e.type == DioExceptionType.connectionError ||
+              e.type == DioExceptionType.connectionTimeout) {
+            throw BaseUrlFailedException(
+              e.requestOptions.uri.toString(),
+            );
+          }
           if (e.error.toString().toLowerCase().contains("http/2")) {
             throw Http2Retry();
           }
@@ -175,6 +181,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
         return tokenUpdated;
       }
       if (e is BaseUrlFailedException) {
+        handleFallbackUrl(Uri.parse(e.message));
         return true;
       }
       return false;
