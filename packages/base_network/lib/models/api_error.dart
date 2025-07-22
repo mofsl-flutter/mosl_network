@@ -9,10 +9,15 @@ abstract class ApiCallError {
 
   factory ApiCallError.failure(String error, int statusCode) => ApiFailure(error, statusCode);
 
+
+  static String getEndUrl(Uri uri) {
+     final endUrl = uri.path.substring(uri.path.indexOf('/api/') + 5);
+     return endUrl;
+  }
   factory ApiCallError.callFailureDIO(Response response, Uri uri) {
     //Sample Path - TraderRevampAPI/api/Init
     final isFromRise = response.requestOptions.headers.containsKey("XApiKey");
-    final endUrl = uri.path.substring(uri.path.indexOf('/api/') + 5);
+    final endUrl = getEndUrl(uri);
     final challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ?? response.headers[authenticateHeaderMPin]  ?? '';
     if (challenge is List<String> && challenge.isNotEmpty) {
       if (!(challenge

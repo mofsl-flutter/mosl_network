@@ -82,8 +82,8 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
       if (!await checkConnectivity && !isCacheAvailable) {
         throw noInternetException;
       } else {
-        if (refreshAuthCount > 0) {
-          refreshAuthCount--;
+        if (shouldReplaceToken(baseUrl)) {
+          reduce401Url(baseUrl);
           header['Authorization'] = 'Bearer $accessToken';
         }
         final sentryService =
@@ -176,7 +176,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
       } else if (e is UnauthorizedException) {
         final tokenUpdated = await newTokenFound;
         if (tokenUpdated) {
-          refreshAuthCount++;
+          add401Url(e.data.endUrl,);
         }
         return tokenUpdated;
       }
