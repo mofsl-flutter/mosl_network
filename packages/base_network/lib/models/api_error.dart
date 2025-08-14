@@ -19,7 +19,7 @@ abstract class ApiCallError {
     final isFromRise = response.requestOptions.headers.containsKey("XApiKey");
     final endUrl = getEndUrl(uri);
     final challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ?? response.headers[authenticateHeaderMPin]  ?? '';
-    final nonFrequentUserSessionOut = response.headers['WWW-Authenticate-NonFrequentUserSessionOut'];
+    final nonFrequentUserSessionOut = response.headers['WWW-Authenticate-SessionOutMsg'] ?? response.headers['www-authenticate-sessionoutmsg'];
     // Check for non-frequent user session out header
     if (nonFrequentUserSessionOut != null && nonFrequentUserSessionOut.isNotEmpty) {
       return NonFrequentUserSessionOut(endUrl, nonFrequentUserSessionOut.toString());
