@@ -163,6 +163,8 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               }
             } else if (callFailure is SessionExpired) {
               throw SessionExpired(callFailure.endUrl, callFailure.challenge);
+            } else if (callFailure is NonFrequentUserSessionOut) {
+              throw NonFrequentUserSessionOutException(callFailure);
             }
           }
           rethrow;

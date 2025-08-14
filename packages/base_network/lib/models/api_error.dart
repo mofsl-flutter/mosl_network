@@ -19,6 +19,12 @@ abstract class ApiCallError {
     final isFromRise = response.requestOptions.headers.containsKey("XApiKey");
     final endUrl = getEndUrl(uri);
     final challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ?? response.headers[authenticateHeaderMPin]  ?? '';
+    final nonFrequentUserSessionOut = response.headers['WWW-Authenticate-NonFrequentUserSessionOut'];
+    // Check for non-frequent user session out header
+    if (nonFrequentUserSessionOut != null && nonFrequentUserSessionOut.isNotEmpty) {
+      return NonFrequentUserSessionOut(endUrl, nonFrequentUserSessionOut.toString());
+    }
+    
     if (challenge is List<String> && challenge.isNotEmpty) {
       if (!(challenge
           .any((challenge) => challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
@@ -80,6 +86,18 @@ class SessionExpired extends ApiCallError{
   }
 }
 
+class NonFrequentUserSessionOut extends ApiCallError{
+  final String endUrl;
+  final String message;
+
+  NonFrequentUserSessionOut(this.endUrl, this.message);
+
+  @override
+  String toString() {
+    return 'NonFrequentUserSessionOut{endUrl: $endUrl, message: $message}';
+  }
+}
+
 //401:Bearer challenge or 401:Empty Challenge
 class UnauthorizedCallFailure extends ApiCallError {
   final String endUrl;
@@ -121,6 +139,12 @@ class UnauthorizedException implements Exception {
   final UnauthorizedCallFailure data;
 
   UnauthorizedException(this.data);
+}
+
+class NonFrequentUserSessionOutException implements Exception {
+  final NonFrequentUserSessionOut data;
+
+  NonFrequentUserSessionOutException(this.data);
 }
 
 class ApiCallFailure extends ApiCallError {
