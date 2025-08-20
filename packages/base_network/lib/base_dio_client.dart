@@ -163,8 +163,6 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               }
             } else if (callFailure is SessionExpired) {
               throw SessionExpired(callFailure.endUrl, callFailure.challenge);
-            } else if (callFailure is NonFrequentUserSessionOut) {
-              throw NonFrequentUserSessionOutException(callFailure);
             }
           }
           rethrow;
@@ -176,7 +174,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
       if (e is Http2Retry) {
         return true;
       } else if (e is UnauthorizedException) {
-        final tokenUpdated = await newTokenFound;
+        final tokenUpdated = await newTokenFound(e);
         if (tokenUpdated) {
           add401Url(e.data.endUrl,);
         }

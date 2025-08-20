@@ -2,39 +2,45 @@ import 'dart:io';
 import 'package:base_network/models/api_constants.dart';
 import 'package:dio/dio.dart';
 
-
 const authenticateHeaderMPin = 'x-amzn-Remapped-WWW-Authenticate';
+
 abstract class ApiCallError {
   factory ApiCallError.timeout() => const ApiTimeout();
 
-  factory ApiCallError.failure(String error, int statusCode) => ApiFailure(error, statusCode);
-
+  factory ApiCallError.failure(String error, int statusCode) =>
+      ApiFailure(error, statusCode);
 
   static String getEndUrl(Uri uri) {
-     final endUrl = uri.path.substring(uri.path.indexOf('/api/') + 5);
-     return endUrl;
+    final endUrl = uri.path.substring(uri.path.indexOf('/api/') + 5);
+    return endUrl;
   }
+
   factory ApiCallError.callFailureDIO(Response response, Uri uri) {
     //Sample Path - TraderRevampAPI/api/Init
     final isFromRise = response.requestOptions.headers.containsKey("XApiKey");
     final endUrl = getEndUrl(uri);
-    final challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ?? response.headers[authenticateHeaderMPin]  ?? '';
-    final nonFrequentUserSessionOut = response.headers['WWW-Authenticate-SessionOutMsg'] ?? response.headers['www-authenticate-sessionoutmsg'];
-    // Check for non-frequent user session out header
-    if (nonFrequentUserSessionOut != null && nonFrequentUserSessionOut.isNotEmpty) {
-      return NonFrequentUserSessionOut(endUrl, nonFrequentUserSessionOut.toString());
-    }
-    
+    final challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ??
+        response.headers[authenticateHeaderMPin] ??
+        '';
+
     if (challenge is List<String> && challenge.isNotEmpty) {
-      if (!(challenge
-          .any((challenge) => challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
+      if (!(challenge.any((challenge) =>
+          challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
         // Raise a custom exception indicating that re-login is required
         return UnauthorizedCallFailure(endUrl, challenge[0]);
-      }else if ((challenge
-          .any((challenge) => challenge.contains(ApiConstants.reLoginRequiredChallenge)))){
+      } else if ((challenge.any((challenge) =>
+          challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
+        final nonFrequentUserSessionOut =
+            response.headers['WWW-Authenticate-SessionOutMsg'] ??
+                response.headers['www-authenticate-sessionoutmsg'];
+        if (nonFrequentUserSessionOut != null &&
+            nonFrequentUserSessionOut.isNotEmpty) {
+          return NonFrequentSessionExpiredCallFailure(
+              endUrl, challenge[0], nonFrequentUserSessionOut[0]);
+        }
         return SessionExpired(endUrl, challenge[0]);
       }
-    }else if(isFromRise){
+    } else if (isFromRise) {
       return UnauthorizedCallFailure(endUrl, endUrl);
     }
     return ApiCallFailureDIO(response);
@@ -55,6 +61,7 @@ class ApiTimeout extends ApiCallError {
 class ApiFailure extends ApiCallError {
   final String error;
   final int errorCode;
+
   const ApiFailure(this.error, this.errorCode);
 
   @override
@@ -74,7 +81,7 @@ class ApiFailure extends ApiCallError {
   }
 }
 
-class SessionExpired extends ApiCallError{
+class SessionExpired extends ApiCallError {
   final String endUrl;
   final String challenge;
 
@@ -86,7 +93,7 @@ class SessionExpired extends ApiCallError{
   }
 }
 
-class NonFrequentUserSessionOut extends ApiCallError{
+class NonFrequentUserSessionOut extends ApiCallError {
   final String endUrl;
   final String message;
 
@@ -111,6 +118,18 @@ class UnauthorizedCallFailure extends ApiCallError {
   }
 }
 
+class NonFrequentSessionExpiredCallFailure extends UnauthorizedCallFailure {
+  final String message;
+
+  NonFrequentSessionExpiredCallFailure(
+      super.endUrl, super.challenge, this.message);
+
+  @override
+  String toString() {
+    return 'NonFrequentSessionExpiredCallFailure: $endUrl, 401 Challenge: $challenge';
+  }
+}
+
 class Http2Retry implements Exception {}
 
 class DioRequestCancelledException implements Exception {
@@ -129,7 +148,7 @@ class DioRequestCancelledException implements Exception {
   @override
   int get hashCode => 0;
 
-  @override 
+  @override
   bool operator <(Object other) {
     return false;
   }
@@ -171,5 +190,8 @@ class ApiCallFailureDIO extends ApiCallError {
 
 class BaseUrlFailedException implements Exception {
   final String message;
-  BaseUrlFailedException(this.message,);
+
+  BaseUrlFailedException(
+    this.message,
+  );
 }

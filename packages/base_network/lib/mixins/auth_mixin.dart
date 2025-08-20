@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:base_network/models/api_error.dart';
 
 mixin AuthMixin {
-  Future<bool> get newTokenFound;
+  Future<bool>  newTokenFound(UnauthorizedException failure);
 
   String get accessToken;
 
