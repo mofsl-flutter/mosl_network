@@ -31,7 +31,7 @@ dependencies:
   velocity_x:
     git:
       url: https://github.com/jeetmotilaloswal/VelocityX.git
-      ref: stable_4.3.1_locale_release
+      ref: stable
 
 
 dev_dependencies:
