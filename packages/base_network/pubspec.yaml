@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.8.0+1
-  intl : ^0.19.0
+  intl : ^0.20.2
   dio_brotli_transformer: ^2.0.0
   dio_http2_adapter: 2.6.0
   retry: ^3.1.2
