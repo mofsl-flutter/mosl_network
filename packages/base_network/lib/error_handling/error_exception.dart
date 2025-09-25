@@ -1,3 +1,5 @@
+import 'package:base_network/error_handling/error_constant.dart';
+
 class ErrorException implements Exception {
   final String key;
   final String message;
@@ -15,13 +17,38 @@ class ErrorException implements Exception {
       this.actualError});
 
   factory ErrorException.noData() {
-    return ErrorException(key: "No data found", message: "No data found");
+    return const ErrorException(key: "NoData", message: ErrorConstant.noDataAvailable);
   }
 
   factory ErrorException.somethingWentWrong() {
     return const ErrorException(
         key: "",
-        message: 'Oops, something went wrong! Please try again later.');
+        message: ErrorConstant.apiErrorSomethingWentWrong);
+  }
+
+  factory ErrorException.networkTimeout() {
+    return const ErrorException(
+        key: "networkTimeout",
+        message: "networkTimeout",
+        );
+  }
+
+  ErrorException copyWith({
+    String? key,
+    String? message,
+    bool? isCacheEnable,
+    int? statusCode,
+    Object? actualError,
+    StackTrace? trace,
+  }) {
+    return ErrorException(
+      key: key ?? this.key,
+      message: message ?? this.message,
+      isCacheEnable: isCacheEnable ?? this.isCacheEnable,
+      statusCode: statusCode ?? this.statusCode,
+      actualError: actualError ?? this.actualError,
+      trace: trace ?? this.trace,
+    );
   }
 
   @override
@@ -33,8 +60,8 @@ class ErrorException implements Exception {
 extension ErrorExceptionExtension on ErrorException {
   ErrorException get getNoInternetException {
     const String internetConnectionOffline =
-        "It seems you are offline.\nPlease check your internet connection.";
+        "You’re offline. Please check your Wi-Fi or mobile \ndata and try again.";
     return const ErrorException(
-        key: "No Internet!", message: internetConnectionOffline);
+        key: "noInternetConnection", message: internetConnectionOffline);
   }
 }
