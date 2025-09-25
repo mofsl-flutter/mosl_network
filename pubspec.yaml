@@ -38,6 +38,9 @@ dependencies:
       ref: e5a827619f3e872c7e47d56e0e8430148b9eb336
       path: dio_cache_interceptor_hive_store
 
+dependency_overrides: 
+  intl: ^0.20.2
+
 
 dev_dependencies:
   flutter_test:
