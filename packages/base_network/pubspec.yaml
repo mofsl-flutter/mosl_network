@@ -32,6 +32,8 @@ dependencies:
     git:
       url: https://github.com/jeetmotilaloswal/VelocityX.git
       ref: stable
+  datadog_dio: ^1.0.0
+  datadog_flutter_plugin: ^2.15.0
 
 
 dev_dependencies:

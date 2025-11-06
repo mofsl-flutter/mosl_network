@@ -13,7 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:retry/retry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-
+import 'package:datadog_dio/datadog_dio.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'mixins/network_mixin.dart';
 
 abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
@@ -50,7 +51,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
         ),
       ]);
     }
-    _dio = Dio()
+    _dio = Dio()..addDatadogInterceptor(DatadogSdk.instance)
       ..httpClientAdapter = getHttp2Adapter
       ..interceptors.addAll(interceptorList)
       ..transformer = DioBrotliTransformer();
