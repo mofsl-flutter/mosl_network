@@ -40,7 +40,7 @@ abstract class ApiCallError {
         }
         return SessionExpired(endUrl, challenge[0]);
       }
-    } else if (isFromRise) {
+    } else if (isFromRise || response.statusCode == 401) {
       return UnauthorizedCallFailure(endUrl, endUrl);
     }
     return ApiCallFailureDIO(response);
