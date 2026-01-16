@@ -13,7 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:retry/retry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-
+import 'package:datadog_dio/datadog_dio.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'mixins/network_mixin.dart';
 
 abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
@@ -50,7 +51,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
         ),
       ]);
     }
-    _dio = Dio()
+    _dio = Dio()..addDatadogInterceptor(DatadogSdk.instance)
       ..httpClientAdapter = getHttp2Adapter
       ..interceptors.addAll(interceptorList)
       ..transformer = DioBrotliTransformer();
@@ -82,8 +83,8 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
       if (!await checkConnectivity && !isCacheAvailable) {
         throw noInternetException;
       } else {
-        if (refreshAuthCount > 0) {
-          refreshAuthCount--;
+        if (shouldReplaceToken(baseUrl)) {
+          reduce401Url(baseUrl);
           header['Authorization'] = 'Bearer $accessToken';
         }
         final sentryService =
@@ -139,6 +140,12 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
           if (CancelToken.isCancel(e)) {
             throw DioRequestCancelledException();
           }
+          if (e.type == DioExceptionType.connectionError ||
+              e.type == DioExceptionType.connectionTimeout) {
+            throw BaseUrlFailedException(
+              e.requestOptions.uri.toString(),
+            );
+          }
           if (e.error.toString().toLowerCase().contains("http/2")) {
             throw Http2Retry();
           }
@@ -168,13 +175,14 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
       if (e is Http2Retry) {
         return true;
       } else if (e is UnauthorizedException) {
-        final tokenUpdated = await newTokenFound;
+        final tokenUpdated = await newTokenFound(e);
         if (tokenUpdated) {
-          refreshAuthCount++;
+          add401Url(e.data.endUrl,);
         }
         return tokenUpdated;
       }
       if (e is BaseUrlFailedException) {
+        handleFallbackUrl(Uri.parse(e.message));
         return true;
       }
       return false;

@@ -3,4 +3,5 @@ abstract class ApiConstants {
 
   static const String bearerChallenge = 'Bearer';//Token related challenge
   static const String reLoginRequiredChallenge = 'ReLoginRequired';// must logout user
+  static const String nonFrequentUserReLoginRequired = 'ReLoginRequired';// must re login and save journey too
 }

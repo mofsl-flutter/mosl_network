@@ -32,7 +32,7 @@ class ApiRequest<T extends Object> extends BaseDioOptions<T> {
   final String apiVersion;
   final ApiIdentifier apiIdentifier;
   final String? apiKey;
-  final void Function(Response<dynamic> cachedBaseResponse)? cacheCallback;
+  final void Function(T cachedBaseResponse)? cacheCallback;
   final bool isTokenRequired;
 
   ApiRequest._({
@@ -75,7 +75,9 @@ class ApiRequest<T extends Object> extends BaseDioOptions<T> {
       apiVersion: apiVersion,
       apiIdentifier: apiIdentifier,
       apiKey: apiKey,
-      cacheCallback: cacheCallback,
+      cacheCallback: cacheCallback == null
+          ? null
+          : (Object obj) => cacheCallback!(obj as T),
       isTokenRequired: isTokenRequired,
     );
   }
@@ -122,7 +124,7 @@ class ApiRequestBuilder<T extends Object> {
   String _apiVersion = '1.0';
   ApiIdentifier? _apiIdentifier = ApiIdentifier.unknown;
   String? _apiKey;
-  void Function(Response<dynamic> cachedBaseResponse)? _cacheCallback;
+  void Function(T)? _cacheCallback;
 
   ApiRequestBuilder<T> url(String url) {
     _url = url;
@@ -204,9 +206,7 @@ class ApiRequestBuilder<T extends Object> {
     return this;
   }
 
-  ApiRequestBuilder<T> cacheCallback(
-    void Function(Response<dynamic>) callback,
-  ) {
+  ApiRequestBuilder<T> cacheCallback(void Function(T) callback) {
     _cacheCallback = callback;
     return this;
   }

@@ -11,7 +11,7 @@ import 'package:mosl_network/network/models/User/UserProfileModels.pb.dart'
     show ProfilePictureResponse;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' show basename;
 
 class CameraUploadScreen extends StatefulWidget {
   const CameraUploadScreen({super.key});
@@ -30,7 +30,7 @@ class _CameraUploadScreenState extends State<CameraUploadScreen> {
     // Request camera permission
     final status = await Permission.camera.request();
     if (!status.isGranted) {
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Camera permission denied")),
       );
       return;

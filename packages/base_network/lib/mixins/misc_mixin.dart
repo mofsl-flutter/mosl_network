@@ -13,6 +13,8 @@ mixin MiscMixin {
 
   void onErrorOccurred(DioException e,Object? request);
 
+  void handleFallbackUrl(Uri uri);
+
   String getRequest(Object? request) {
     if (request is String) {
       return request;

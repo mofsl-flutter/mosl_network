@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.8.0+1
-  intl : ^0.19.0
+  intl : ^0.20.2
   dio_brotli_transformer: ^2.0.0
   dio_http2_adapter: 2.6.0
   retry: ^3.1.2
@@ -31,7 +31,9 @@ dependencies:
   velocity_x:
     git:
       url: https://github.com/jeetmotilaloswal/VelocityX.git
-      ref: stable_4.3.1_locale_release
+      ref: stable
+  datadog_dio: ^1.1.0
+  datadog_flutter_plugin: ^2.15.0
 
 
 dev_dependencies:
