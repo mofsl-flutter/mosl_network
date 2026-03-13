@@ -5,7 +5,6 @@ import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_stor
 import 'package:flutter/material.dart';
 import 'package:mosl_network/network/extentions.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:protobuf/protobuf.dart';
 
 final dioOptions = BaseOptions(
   connectTimeout: const Duration(seconds: 20),
@@ -53,6 +52,7 @@ class CacheManager {
   }
 
   RequestOptions _getReqOption(String path, HttpMethod method) {
+    // ignore: invalid_use_of_internal_member
     return DioMixin.checkOptions(
       method.name.toUpperCase(),
       Options(

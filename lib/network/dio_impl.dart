@@ -120,7 +120,7 @@ class DioImpl extends BaseDioClient {
   }
 
   @override
-  Future<bool> get newTokenFound async {
+  Future<bool> newTokenFound(UnauthorizedException failure) async {
     bool respVal = await _tokenManager.newAccessToken();
     return respVal;
   }
@@ -206,6 +206,9 @@ class DioImpl extends BaseDioClient {
   void _handleReLogin() {
     _tokenManager.handleSilentLoginFailure();
   }
+
+  @override
+  void handleFallbackUrl(Uri uri) {}
 
   @override
   void callCleverTap(String s, Map<String, String> map) {}

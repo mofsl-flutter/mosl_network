@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 class LoggingInterceptor extends Interceptor {
@@ -32,7 +31,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('*** Request ***');
+    debugPrint('*** Request ***');
     handler.next(options);
   }
 
@@ -51,7 +50,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('*** Response ***');
+    debugPrint('*** Response ***');
     handler.next(response);
   }
 
@@ -68,7 +67,7 @@ class LoggingInterceptor extends Interceptor {
     if (responseBody) {
       debugPrint('Response Text:');
       if(!kReleaseMode) {
-        print(response.toString());
+        debugPrint(response.toString());
       }
     }
   }

@@ -21,7 +21,7 @@ class StoryBannerModel  extends JsonMessageResponse{
     final Map<String, dynamic> data = <String, dynamic>{};
     data['statusCode'] = statusCode;
     if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
+      data['data'] = this.data!.map((Data v) => v.toJson()).toList();
     }
     return data;
   }
@@ -95,24 +95,24 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['storyId'] = this.storyId;
-    data['title'] = this.title;
-    data['shortDescription'] = this.shortDescription;
-    data['longDescription'] = this.longDescription;
-    data['imageUrl'] = this.imageUrl;
-    data['sequence'] = this.sequence;
-    data['isActive'] = this.isActive;
-    data['startDate'] = this.startDate;
-    data['endDate'] = this.endDate;
-    data['redirectionType'] = this.redirectionType;
-    data['redirectionLink'] = this.redirectionLink;
-    data['contentPlacement'] = this.contentPlacement;
-    data['sourceApplication'] = this.sourceApplication;
-    data['mapToAssets'] = this.mapToAssets;
-    data['eventName'] = this.eventName;
-    data['eventParameter'] = this.eventParameter;
-    data['eventParameterValue'] = this.eventParameterValue;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['storyId'] = storyId;
+    data['title'] = title;
+    data['shortDescription'] = shortDescription;
+    data['longDescription'] = longDescription;
+    data['imageUrl'] = imageUrl;
+    data['sequence'] = sequence;
+    data['isActive'] = isActive;
+    data['startDate'] = startDate;
+    data['endDate'] = endDate;
+    data['redirectionType'] = redirectionType;
+    data['redirectionLink'] = redirectionLink;
+    data['contentPlacement'] = contentPlacement;
+    data['sourceApplication'] = sourceApplication;
+    data['mapToAssets'] = mapToAssets;
+    data['eventName'] = eventName;
+    data['eventParameter'] = eventParameter;
+    data['eventParameterValue'] = eventParameterValue;
     return data;
   }
 }

@@ -9,7 +9,7 @@ import 'package:mosl_network/shared_preference/shared_preferences_provider.dart'
 import 'package:mosl_network/ui/download_screen.dart' show DownloadScreen;
 import 'package:mosl_network/ui/json_screen.dart';
 import 'package:mosl_network/ui/proto_screen.dart' show ProtoScreen;
-import 'package:mosl_network/ui/upload_screen.dart' show CameraUploadScreen, FileUploadScreen;
+import 'package:mosl_network/ui/upload_screen.dart' show CameraUploadScreen;
 
 final futureList = Future.value([
   SharedPreferencesProvider.init(),

@@ -1,11 +1,9 @@
 import 'package:base_network/error_handling/error_exception.dart';
 import 'package:base_network/models/api_enums.dart' show HttpMethod;
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mosl_network/network/dio_impl.dart' show DioImpl;
 import 'package:mosl_network/network/helper/api_request_builder.dart'
     show ApiIdentifier, ApiRequestBuilder;
-import 'package:mosl_network/network/helper/constants.dart' show Constants;
 import 'package:mosl_network/network/models/fund_details_model.dart';
 import 'package:mosl_network/network/models/json_message_response.dart';
 import 'package:mosl_network/network/models/story_banner_model.dart';

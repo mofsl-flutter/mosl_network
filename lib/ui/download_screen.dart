@@ -27,6 +27,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
       StateSetter? dialogSetState;
       _progress = 0.0;
 
+      if (!mounted) return;
       _showDownloadDialog(context, (setter) => dialogSetState = setter);
 
       final request = ApiRequestBuilder()

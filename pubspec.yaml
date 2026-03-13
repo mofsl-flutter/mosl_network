@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   dio: ^5.8.0+1
   shared_preferences: ^2.5.3
-  protobuf: ^4.0.0
+  protobuf: ^5.1.0
   path_provider: ^2.0.0
   http_parser: ^4.0.2
   image_picker:       # Latest version as of now
@@ -24,6 +24,7 @@ dependencies:
   permission_handler:
   base_network:
     path: packages/base_network
+  path: ^1.9.0
   connectivity_plus: ^6.1.4
   dio_cache_interceptor:
     git:
