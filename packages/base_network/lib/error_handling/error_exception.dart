@@ -1,13 +1,6 @@
 import 'package:base_network/error_handling/error_constant.dart';
 
 class ErrorException implements Exception {
-  final String key;
-  final String message;
-  final bool isCacheEnable;
-  final int statusCode;
-  final Object? actualError;
-  final StackTrace? trace;
-
   const ErrorException(
       {required this.key,
       required this.message,
@@ -33,13 +26,20 @@ class ErrorException implements Exception {
         );
   }
 
+  final String key;
+  final String message;
+  final bool isCacheEnable;
+  final int statusCode;
+  final Object? actualError;
+  final StackTrace? trace;
+
   ErrorException copyWith({
-    String? key,
-    String? message,
-    bool? isCacheEnable,
-    int? statusCode,
-    Object? actualError,
-    StackTrace? trace,
+    final String? key,
+    final String? message,
+    final bool? isCacheEnable,
+    final int? statusCode,
+    final Object? actualError,
+    final StackTrace? trace,
   }) {
     return ErrorException(
       key: key ?? this.key,
@@ -60,7 +60,7 @@ class ErrorException implements Exception {
 extension ErrorExceptionExtension on ErrorException {
   ErrorException get getNoInternetException {
     const String internetConnectionOffline =
-        "You’re offline. Please check your Wi-Fi or mobile \ndata and try again.";
+        "You're offline. Please check your Wi-Fi or mobile \ndata and try again.";
     return const ErrorException(
         key: "noInternetConnection", message: internetConnectionOffline);
   }

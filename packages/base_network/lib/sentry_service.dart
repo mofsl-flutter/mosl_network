@@ -6,21 +6,21 @@ class SentryService {
 
   SentryService({required this.shouldStartSentry});
 
-  void addBreadcrumb(Map<String, Object?> errorData) {
+  Future<void> addBreadcrumb(final Map<String, Object?> errorData) async {
     if (shouldStartSentry) {
-      final breadcrumb = Breadcrumb(
+      final Breadcrumb breadcrumb = Breadcrumb(
         category: 'dio-error', // Optional category for grouping breadcrumbs
         data: errorData,
       );
-      Sentry.addBreadcrumb(breadcrumb);
+      await Sentry.addBreadcrumb(breadcrumb);
     }
   }
 
-  void captureException(dynamic exception, int statusCode) async {
+  void captureException(final dynamic exception, final int statusCode) async {
     if (shouldStartSentry) {
       _transaction.throwable = exception;
       await Sentry.captureException(exception);
-      final spanStatus = statusCode != -1
+      final SpanStatus spanStatus = statusCode != -1
           ? SpanStatus.fromHttpStatusCode(statusCode)
           : const SpanStatus.internalError();
       _transaction.status = spanStatus;
@@ -33,8 +33,8 @@ class SentryService {
     }
   }
 
-  Future<ISentrySpan?> startTransaction(String name, String operation,
-      {bool bindToScope = false}) async {
+  Future<ISentrySpan?> startTransaction(final String name, final String operation,
+      {final bool bindToScope = false}) async {
     if (shouldStartSentry) {
       return _transaction = Sentry.getSpan() ??
           Sentry.startTransaction(
@@ -46,7 +46,7 @@ class SentryService {
     return null;
   }
 
-  startChildTransaction(String name, String operation) {
+  void startChildTransaction(final String name, final String operation) {
     if (shouldStartSentry) {
       _transaction = _transaction.startChild(
         name,
@@ -56,7 +56,7 @@ class SentryService {
   }
 
   void setStatus(
-    SpanStatus status,
+    final SpanStatus status,
   ) {
     if (shouldStartSentry) {
       _transaction.status = status;

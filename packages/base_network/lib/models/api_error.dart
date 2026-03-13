@@ -1,36 +1,34 @@
 import 'dart:io';
 import 'package:base_network/models/api_constants.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
-const authenticateHeaderMPin = 'x-amzn-Remapped-WWW-Authenticate';
+const String authenticateHeaderMPin = 'x-amzn-Remapped-WWW-Authenticate';
 
 abstract class ApiCallError {
+  const ApiCallError();
+
   factory ApiCallError.timeout() => const ApiTimeout();
 
-  factory ApiCallError.failure(String error, int statusCode) =>
+  factory ApiCallError.failure(final String error, final int statusCode) =>
       ApiFailure(error, statusCode);
 
-  static String getEndUrl(Uri uri) {
-    final endUrl = uri.path.substring(uri.path.indexOf('/api/') + 5);
-    return endUrl;
-  }
-
-  factory ApiCallError.callFailureDIO(Response response, Uri uri) {
+  factory ApiCallError.callFailureDIO(final Response<dynamic> response, final Uri uri) {
     //Sample Path - TraderRevampAPI/api/Init
-    final isFromRise = response.requestOptions.headers.containsKey("XApiKey");
-    final endUrl = getEndUrl(uri);
-    final challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ??
+    final bool isFromRise = response.requestOptions.headers.containsKey("XApiKey");
+    final String endUrl = getEndUrl(uri);
+    final dynamic challenge = response.headers[HttpHeaders.wwwAuthenticateHeader] ??
         response.headers[authenticateHeaderMPin] ??
         '';
 
     if (challenge is List<String> && challenge.isNotEmpty) {
-      if (!(challenge.any((challenge) =>
+      if (!(challenge.any((String challenge) =>
           challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
         // Raise a custom exception indicating that re-login is required
         return UnauthorizedCallFailure(endUrl, challenge[0]);
-      } else if ((challenge.any((challenge) =>
+      } else if ((challenge.any((String challenge) =>
           challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
-        final nonFrequentUserSessionOut =
+        final List<String>? nonFrequentUserSessionOut =
             response.headers['WWW-Authenticate-SessionOutMsg'] ??
                 response.headers['www-authenticate-sessionoutmsg'];
         if (nonFrequentUserSessionOut != null &&
@@ -46,7 +44,10 @@ abstract class ApiCallError {
     return ApiCallFailureDIO(response);
   }
 
-  const ApiCallError();
+  static String getEndUrl(final Uri uri) {
+    final String endUrl = uri.path.substring(uri.path.indexOf('/api/') + 5);
+    return endUrl;
+  }
 }
 
 class ApiTimeout extends ApiCallError {
@@ -58,14 +59,15 @@ class ApiTimeout extends ApiCallError {
   }
 }
 
+@immutable
 class ApiFailure extends ApiCallError {
+  const ApiFailure(this.error, this.errorCode);
+
   final String error;
   final int errorCode;
 
-  const ApiFailure(this.error, this.errorCode);
-
   @override
-  bool operator ==(Object other) =>
+  bool operator ==(final Object other) =>
       identical(this, other) ||
       other is ApiFailure &&
           runtimeType == other.runtimeType &&
@@ -82,10 +84,10 @@ class ApiFailure extends ApiCallError {
 }
 
 class SessionExpired extends ApiCallError {
+  SessionExpired(this.endUrl, this.challenge);
+
   final String endUrl;
   final String challenge;
-
-  SessionExpired(this.endUrl, this.challenge);
 
   @override
   String toString() {
@@ -94,10 +96,10 @@ class SessionExpired extends ApiCallError {
 }
 
 class NonFrequentUserSessionOut extends ApiCallError {
+  NonFrequentUserSessionOut(this.endUrl, this.message);
+
   final String endUrl;
   final String message;
-
-  NonFrequentUserSessionOut(this.endUrl, this.message);
 
   @override
   String toString() {
@@ -107,10 +109,10 @@ class NonFrequentUserSessionOut extends ApiCallError {
 
 //401:Bearer challenge or 401:Empty Challenge
 class UnauthorizedCallFailure extends ApiCallError {
+  UnauthorizedCallFailure(this.endUrl, this.challenge);
+
   final String endUrl;
   final String challenge;
-
-  UnauthorizedCallFailure(this.endUrl, this.challenge);
 
   @override
   String toString() {
@@ -119,10 +121,10 @@ class UnauthorizedCallFailure extends ApiCallError {
 }
 
 class NonFrequentSessionExpiredCallFailure extends UnauthorizedCallFailure {
-  final String message;
-
   NonFrequentSessionExpiredCallFailure(
       super.endUrl, super.challenge, this.message);
+
+  final String message;
 
   @override
   String toString() {
@@ -132,8 +134,9 @@ class NonFrequentSessionExpiredCallFailure extends UnauthorizedCallFailure {
 
 class Http2Retry implements Exception {}
 
+@immutable
 class DioRequestCancelledException implements Exception {
-  DioRequestCancelledException();
+  const DioRequestCancelledException();
 
   @override
   String toString() {
@@ -141,35 +144,34 @@ class DioRequestCancelledException implements Exception {
   }
 
   @override
-  bool operator ==(Object other) =>
+  bool operator ==(final Object other) =>
       identical(this, other) ||
       other is DioRequestCancelledException && runtimeType == other.runtimeType;
 
   @override
   int get hashCode => 0;
 
-  @override
-  bool operator <(Object other) {
+  bool operator <(final Object other) {
     return false;
   }
 }
 
 class UnauthorizedException implements Exception {
-  final UnauthorizedCallFailure data;
-
   UnauthorizedException(this.data);
+
+  final UnauthorizedCallFailure data;
 }
 
 class NonFrequentUserSessionOutException implements Exception {
-  final NonFrequentUserSessionOut data;
-
   NonFrequentUserSessionOutException(this.data);
+
+  final NonFrequentUserSessionOut data;
 }
 
 class ApiCallFailure extends ApiCallError {
-  final Response response;
-
   ApiCallFailure(this.response);
+
+  final Response<dynamic> response;
 
   @override
   String toString() {
@@ -178,9 +180,9 @@ class ApiCallFailure extends ApiCallError {
 }
 
 class ApiCallFailureDIO extends ApiCallError {
-  final Response response;
-
   ApiCallFailureDIO(this.response);
+
+  final Response<dynamic> response;
 
   @override
   String toString() {
@@ -189,9 +191,9 @@ class ApiCallFailureDIO extends ApiCallError {
 }
 
 class BaseUrlFailedException implements Exception {
-  final String message;
-
   BaseUrlFailedException(
     this.message,
   );
+
+  final String message;
 }

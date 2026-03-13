@@ -18,14 +18,11 @@ import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'mixins/network_mixin.dart';
 
 abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
-  late final Dio _dio;
-  final bool _isDebug = kDebugMode;
-
   BaseDioClient() {
-    final interceptorList = [
+    final List<Interceptor> interceptorList = [
       NetworkLoggerInterceptor(),
       DioFirebasePerformanceInterceptor(
-        requestUrlBuilder: (options) => options.uri.toString(),
+        requestUrlBuilder: (RequestOptions options) => options.uri.toString(),
       ),
     ];
     if (_isDebug) {
@@ -37,13 +34,13 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
           requestBody: true,
           requestHeader: true,
           error: true,
-          logPrint: (o) {
+          logPrint: (Object o) {
             if (o is String) {
               if (o.startsWith(' Authorization:')) {
                 printLongString(o);
               } else {
                 debugPrint(
-                  o.toString(),
+                  o,
                 );
               }
             }
@@ -58,65 +55,69 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
     _dio.interceptors.removeImplyContentTypeInterceptor();
   }
 
-  void addBaseInterceptors(List<Interceptor> listInterceptors,
-      [bool shouldClear = true]) {
+  late final Dio _dio;
+  final bool _isDebug = kDebugMode;
+
+  void addBaseInterceptors(final List<Interceptor> listInterceptors,
+      [final bool shouldClear = true]) {
     if (shouldClear) {
       _dio.interceptors.clear();
     }
     _dio.interceptors.addAll(listInterceptors);
   }
 
-  void updateCacheManager(Interceptor interceptor) {
-    _dio.interceptors.removeWhere((e) => e.runtimeType == DioCacheInterceptor);
+  void updateCacheManager(final Interceptor interceptor) {
+    _dio.interceptors.removeWhere((Interceptor e) => e.runtimeType == DioCacheInterceptor);
     _dio.interceptors.add(interceptor);
   }
 
   @protected
   Future<Response<dynamic>> callApiWithDio(
-      {required BaseDioOptions baseOptions,
-      bool isCacheAvailable = false,
-      required Map<String, String> header}) async {
-    final baseUrl = Uri.parse(baseOptions.url);
-    const retry = RetryOptions(maxAttempts: 2);
+      {required final BaseDioOptions baseOptions,
+      final bool isCacheAvailable = false,
+      required final Map<String, String> header}) async {
+    final Uri baseUrl = Uri.parse(baseOptions.url);
+    const RetryOptions retry = RetryOptions(maxAttempts: 2);
     return await retry.retry(() async {
       _getDio(baseUrl.host);
       if (!await checkConnectivity && !isCacheAvailable) {
+        // ignore: only_throw_errors
         throw noInternetException;
       } else {
         if (shouldReplaceToken(baseUrl)) {
           reduce401Url(baseUrl);
           header['Authorization'] = 'Bearer $accessToken';
         }
-        final sentryService =
+        final SentryService sentryService =
             SentryService(shouldStartSentry: !_isDebug && isSentrySupported);
-        sentryService.startTransaction(
+        await sentryService.startTransaction(
             baseOptions.url, getRequest(baseOptions.rawRequest));
         _dio.options = baseOptions.baseOptions;
         _dio.options.headers = header;
         _dio.options.responseType = baseOptions.baseOptions.responseType;
         onRequestSubmit();
-        final url = baseOptions.url;
-        final cancelToken = baseOptions.cancelToken;
+        final String url = baseOptions.url;
+        final CancelToken? cancelToken = baseOptions.cancelToken;
         try {
           switch (baseOptions.requestType) {
             case HttpMethod.get:
-              final res = await _dio.get(url, cancelToken: cancelToken);
+              final Response<dynamic> res = await _dio.get(url, cancelToken: cancelToken);
               sentryService.setStatus(
                 const SpanStatus.ok(),
               );
               return res;
             case HttpMethod.post:
-              final res = await _dio.post(url,
+              final Response<dynamic> res = await _dio.post(url,
                   data: baseOptions.request, cancelToken: cancelToken);
               sentryService.setStatus(
                 const SpanStatus.ok(),
               );
               return res;
             case HttpMethod.download:
-              final savePath =
+              final String? savePath =
                   baseOptions.savePath; // absolute file path to save
 
-              final res = await _dio.download(
+              final Response<dynamic> res = await _dio.download(
                 url,
                 savePath,
                 cancelToken: cancelToken,
@@ -125,7 +126,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               sentryService.setStatus(const SpanStatus.ok());
               return res;
             case HttpMethod.upload:
-              final uploadRes = await _dio.post(
+              final Response<dynamic> uploadRes = await _dio.post(
                 url,
                 data: baseOptions.request,
                 cancelToken: cancelToken,
@@ -134,11 +135,11 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               return uploadRes;
           }
         } on DioException catch (e) {
-          final statusCode = e.response != null ? e.response?.statusCode : -1;
+          final int? statusCode = e.response != null ? e.response?.statusCode : -1;
           sentryService.captureException(e, statusCode!);
           onErrorOccurred(e, baseOptions.rawRequest);
           if (CancelToken.isCancel(e)) {
-            throw DioRequestCancelledException();
+            throw const DioRequestCancelledException();
           }
           if (e.type == DioExceptionType.connectionError ||
               e.type == DioExceptionType.connectionTimeout) {
@@ -150,7 +151,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
             throw Http2Retry();
           }
           if (e.response != null && e.response!.statusCode == 401) {
-            final callFailure = ApiCallError.callFailureDIO(
+            final ApiCallError callFailure = ApiCallError.callFailureDIO(
               e.response!,
               e.response!.realUri,
             );
@@ -163,19 +164,20 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
                 throw UnauthorizedException(callFailure);
               }
             } else if (callFailure is SessionExpired) {
+              // ignore: only_throw_errors
               throw SessionExpired(callFailure.endUrl, callFailure.challenge);
             }
           }
           rethrow;
         } finally {
-          sentryService.finish();
+          await sentryService.finish();
         }
       }
-    }, retryIf: (e) async {
+    }, retryIf: (final Exception e) async {
       if (e is Http2Retry) {
         return true;
       } else if (e is UnauthorizedException) {
-        final tokenUpdated = await newTokenFound(e);
+        final bool tokenUpdated = await newTokenFound(e);
         if (tokenUpdated) {
           add401Url(e.data.endUrl,);
         }
@@ -189,20 +191,20 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
     });
   }
 
-  void _getDio(String host) {
+  void _getDio(final String host) {
     _dio.httpClientAdapter = getHttpAdapter(host);
   }
 
-  void callCleverTap(String s, Map<String, String> map);
+  void callCleverTap(final String s, final Map<String, String> map);
 
-  void printLongString(String text, {int chunkSize = 1020}) {
-    final pattern = RegExp('.{1,$chunkSize}', dotAll: true);
-    for (final match in pattern.allMatches(text)) {
+  void printLongString(final String text, {final int chunkSize = 1020}) {
+    final RegExp pattern = RegExp('.{1,$chunkSize}', dotAll: true);
+    for (final RegExpMatch match in pattern.allMatches(text)) {
       debugPrint(match.group(0));
     }
   }
 }
 
-String getFormatedDate(DateTime date) {
+String getFormatedDate(final DateTime date) {
   return DateFormat('dd-MM-yyyy HH:mm:ss.SSS a').format(date);
 }

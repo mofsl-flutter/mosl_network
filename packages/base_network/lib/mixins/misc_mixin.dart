@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:protobuf/protobuf.dart';
 
 mixin MiscMixin {
@@ -7,15 +6,15 @@ mixin MiscMixin {
 
   void onRequestSubmit();
 
-  bool shouldFireUnAuthorized(String endUrl);
+  bool shouldFireUnAuthorized(final String endUrl);
 
   Object get noInternetException;
 
-  void onErrorOccurred(DioException e,Object? request);
+  void onErrorOccurred(final DioException e, final Object? request);
 
-  void handleFallbackUrl(Uri uri);
+  void handleFallbackUrl(final Uri uri);
 
-  String getRequest(Object? request) {
+  String getRequest(final Object? request) {
     if (request is String) {
       return request;
     } else if (request is GeneratedMessage) {
