@@ -8,7 +8,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
   dio: ^5.8.0+1
   shared_preferences: ^2.5.3
   protobuf: ^4.0.0
@@ -22,7 +21,6 @@ dependencies:
       ref: master
   # Latest version
   permission_handler:
-  device_info_plus:
   base_network:
     path: packages/base_network
   connectivity_plus: ^6.1.4
