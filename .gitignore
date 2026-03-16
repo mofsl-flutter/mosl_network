@@ -83,3 +83,4 @@ pubspec.lock # for packages, typically not ignored for apps
 *.swp
 .DS_Store
 Thumbs.db
+.scannerwork/
