@@ -67,7 +67,6 @@ class SecureStringPreference extends StringPreference {
 
   @override
   Future<void> set(String value) async {
-    // final encrypted = DataEncryption.encryptString(value, secret);
     await super.set(value);
   }
 }
