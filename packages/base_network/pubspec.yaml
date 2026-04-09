@@ -36,10 +36,13 @@ dependencies:
       ref: stable
   datadog_dio: ^1.1.0
   datadog_flutter_plugin: ^2.15.0
+  path_provider_platform_interface: ^2.1.2
 
 
 dev_dependencies:
   flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
 
 dependency_overrides:
   visibility_detector: ^0.4.0+2
