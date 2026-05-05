@@ -90,7 +90,6 @@ class DioImpl extends BaseDioClient {
 
       if (error is SessionExpired) {
         //Todo need to add logger here
-        // AppWriteLog.writeLog("Api service", "SessionExpired with the value ${error.toString()}");
         _handleReLogin();
       } else {
         completer.completeError(

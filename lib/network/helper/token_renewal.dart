@@ -39,9 +39,6 @@ class TokenRenewalHelper extends BaseTokenManager {
   @override
   void handleSilentLoginFailure() {
     //Todo showDialog and logout ;
-    // showDialogAlert('Session Expired!, Kindly re-login.', () {
-    //   LogOutHelper().logout();
-    // }, Get.context!);
   }
 
   @override
@@ -49,9 +46,7 @@ class TokenRenewalHelper extends BaseTokenManager {
   bool get shouldCallRefreshToken =>false;
 
   @override
-  void writeLogs(String title, String message) {
-    // AppWriteLog.writeLog(title, message);
-  }
+  void writeLogs(String title, String message) {}
 
   @override
   bool get isTokenValid => isRefreshTokenValid(Preferences().refreshToken.getOrDefault());
