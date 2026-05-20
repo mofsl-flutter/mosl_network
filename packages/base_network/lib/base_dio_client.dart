@@ -163,6 +163,9 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               if (shouldFireUnAuthorized(callFailure.endUrl)) {
                 throw UnauthorizedException(callFailure);
               }
+            } else if (callFailure is ReAuthRequired) {
+              // ignore: only_throw_errors
+              throw ReAuthRequired(callFailure.endUrl, callFailure.challenge);
             } else if (callFailure is SessionExpired) {
               // ignore: only_throw_errors
               throw SessionExpired(callFailure.endUrl, callFailure.challenge);

@@ -22,7 +22,9 @@ abstract class ApiCallError {
         '';
 
     if (challenge is List<String> && challenge.isNotEmpty) {
-      if (!(challenge.any((String challenge) =>
+      if (challenge.any((String c) => c.contains(ApiConstants.reAuthRequiredChallenge))) {
+        return ReAuthRequired(endUrl, challenge[0]);
+      } else if (!(challenge.any((String challenge) =>
           challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
         // Raise a custom exception indicating that re-login is required
         return UnauthorizedCallFailure(endUrl, challenge[0]);
@@ -93,6 +95,16 @@ class SessionExpired extends ApiCallError {
   String toString() {
     return 'SessionExpired{endUrl: $endUrl, challenge: $challenge}';
   }
+}
+
+class ReAuthRequired extends ApiCallError {
+  ReAuthRequired(this.endUrl, this.challenge);
+
+  final String endUrl;
+  final String challenge;
+
+  @override
+  String toString() => 'ReAuthRequired{endUrl: $endUrl, challenge: $challenge}';
 }
 
 class NonFrequentUserSessionOut extends ApiCallError {
