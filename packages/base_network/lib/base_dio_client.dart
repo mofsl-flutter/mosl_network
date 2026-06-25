@@ -133,6 +133,16 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               );
               sentryService.setStatus(const SpanStatus.ok());
               return uploadRes;
+            case HttpMethod.delete:
+              final Response<dynamic> res =
+                  await _dio.delete(url, cancelToken: cancelToken);
+              sentryService.setStatus(const SpanStatus.ok());
+              return res;
+            case HttpMethod.put:
+              final Response<dynamic> res = await _dio.put(url,
+                  data: baseOptions.request, cancelToken: cancelToken);
+              sentryService.setStatus(const SpanStatus.ok());
+              return res;
           }
         } on DioException catch (e) {
           final int? statusCode = e.response != null ? e.response?.statusCode : -1;
