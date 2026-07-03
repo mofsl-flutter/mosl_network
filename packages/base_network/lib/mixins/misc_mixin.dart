@@ -3,8 +3,6 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:protobuf/protobuf.dart';
 
 mixin MiscMixin {
-  bool get isSentrySupported => false;
-
   void onRequestSubmit();
 
   bool shouldFireUnAuthorized(String endUrl);

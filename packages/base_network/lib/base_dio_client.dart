@@ -4,7 +4,6 @@ import 'package:base_network/mixins/misc_mixin.dart';
 import 'package:base_network/models/api_enums.dart';
 import 'package:base_network/models/api_error.dart';
 import 'package:base_network/models/base_options.dart';
-import 'package:base_network/sentry_service.dart';
 import "package:dio/dio.dart";
 import 'package:dio_brotli_transformer/dio_brotli_transformer.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
@@ -12,8 +11,8 @@ import 'package:firebase_performance_dio/firebase_performance_dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:retry/retry.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-
+import 'package:datadog_dio/datadog_dio.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'mixins/network_mixin.dart';
 
 abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
@@ -57,8 +56,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
     _dio.interceptors.removeImplyContentTypeInterceptor();
   }
 
-  void addBaseInterceptors(List<Interceptor> listInterceptors,
-      [bool shouldClear = true]) {
+  void addBaseInterceptors(List<Interceptor> listInterceptors, [bool shouldClear = true]) {
     if (shouldClear) {
       _dio.interceptors.clear();
     }
@@ -86,10 +84,6 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
           refreshAuthCount--;
           header['Authorization'] = 'Bearer $accessToken';
         }
-        final sentryService =
-            SentryService(shouldStartSentry: !_isDebug && isSentrySupported);
-        sentryService.startTransaction(
-            baseOptions.url, getRequest(baseOptions.rawRequest));
         _dio.options = baseOptions.baseOptions;
         _dio.options.headers = header;
         _dio.options.responseType = baseOptions.baseOptions.responseType;
@@ -99,42 +93,26 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
         try {
           switch (baseOptions.requestType) {
             case HttpMethod.get:
-              final res = await _dio.get(url, cancelToken: cancelToken);
-              sentryService.setStatus(
-                const SpanStatus.ok(),
-              );
-              return res;
+              return await _dio.get(url, cancelToken: cancelToken);
             case HttpMethod.post:
-              final res = await _dio.post(url,
-                  data: baseOptions.request, cancelToken: cancelToken);
-              sentryService.setStatus(
-                const SpanStatus.ok(),
-              );
-              return res;
+              return await _dio.post(url, data: baseOptions.request, cancelToken: cancelToken);
             case HttpMethod.download:
-              final savePath =
-                  baseOptions.savePath; // absolute file path to save
+              final savePath = baseOptions.savePath; // absolute file path to save
 
-              final res = await _dio.download(
+              return await _dio.download(
                 url,
                 savePath,
                 cancelToken: cancelToken,
-                onReceiveProgress: baseOptions.onReceiveProgress, // optional
+                onReceiveProgress: baseOptions.onReceiveProgress,
               );
-              sentryService.setStatus(const SpanStatus.ok());
-              return res;
             case HttpMethod.upload:
-              final uploadRes = await _dio.post(
+              return await _dio.post(
                 url,
                 data: baseOptions.request,
                 cancelToken: cancelToken,
               );
-              sentryService.setStatus(const SpanStatus.ok());
-              return uploadRes;
           }
         } on DioException catch (e) {
-          final statusCode = e.response != null ? e.response?.statusCode : -1;
-          sentryService.captureException(e, statusCode!);
           onErrorOccurred(e, baseOptions.rawRequest);
           if (CancelToken.isCancel(e)) {
             throw DioRequestCancelledException();
@@ -160,9 +138,7 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
             }
           }
           rethrow;
-        } finally {
-          sentryService.finish();
-        }
+        } finally {}
       }
     }, retryIf: (e) async {
       if (e is Http2Retry) {
