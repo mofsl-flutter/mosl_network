@@ -1,6 +1,7 @@
 name: mosl_network
 description: "A new Flutter project."
-version: 1.0.0+1
+version: 1.0.1+1
+publish_to: none
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
@@ -8,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
   dio: ^5.8.0+1
   shared_preferences: ^2.5.3
   protobuf: ^4.0.0
@@ -22,9 +22,9 @@ dependencies:
       ref: master
   # Latest version
   permission_handler:
-  device_info_plus:
   base_network:
     path: packages/base_network
+  path: ^1.9.0
   connectivity_plus: ^6.1.4
   dio_cache_interceptor:
     git:
@@ -38,11 +38,16 @@ dependencies:
       ref: e5a827619f3e872c7e47d56e0e8430148b9eb336
       path: dio_cache_interceptor_hive_store
 
+dependency_overrides: 
+  intl: ^0.20.2
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  path_provider_platform_interface: ^2.0.0
+  permission_handler_platform_interface: ^4.0.0
 
 flutter:
   uses-material-design: true

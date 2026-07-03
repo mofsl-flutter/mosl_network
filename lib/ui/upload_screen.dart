@@ -11,7 +11,7 @@ import 'package:mosl_network/network/models/User/UserProfileModels.pb.dart'
     show ProfilePictureResponse;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' show basename;
 
 class CameraUploadScreen extends StatefulWidget {
   const CameraUploadScreen({super.key});
@@ -19,7 +19,7 @@ class CameraUploadScreen extends StatefulWidget {
   static const routeName = '/upload';
 
   @override
-  _CameraUploadScreenState createState() => _CameraUploadScreenState();
+  State<CameraUploadScreen> createState() => _CameraUploadScreenState();
 }
 
 class _CameraUploadScreenState extends State<CameraUploadScreen> {
@@ -30,7 +30,8 @@ class _CameraUploadScreenState extends State<CameraUploadScreen> {
     // Request camera permission
     final status = await Permission.camera.request();
     if (!status.isGranted) {
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Camera permission denied")),
       );
       return;
@@ -90,11 +91,13 @@ class _CameraUploadScreenState extends State<CameraUploadScreen> {
 
       final response = await DioImpl()
           .callApiWithDioClient(apiRequest, ProfilePictureResponse());
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Upload success: ${response.message}")),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Upload failed: $e")),
       );
     } finally {

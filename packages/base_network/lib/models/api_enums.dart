@@ -14,7 +14,9 @@ extension HttpMethodExtension on HttpMethod {
         return fire_perf.HttpMethod.Get;
       case HttpMethod.post:
         return fire_perf.HttpMethod.Post;
-      default:
+      case HttpMethod.upload:
+        return fire_perf.HttpMethod.Post;
+      case HttpMethod.download:
         return fire_perf.HttpMethod.Get;
     }
   }

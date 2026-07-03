@@ -6,10 +6,10 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/foundation.dart';
 
 mixin NetworkMixin {
-  final _mapNetworkAdapter = HashMap<String, HttpClientAdapter>();
+  final HashMap<String, HttpClientAdapter> _mapNetworkAdapter = HashMap<String, HttpClientAdapter>();
 
-  void addEntryInMap(String hostName, [HttpClientAdapter? adapter]) {
-    final valueAdapter = _mapNetworkAdapter[hostName];
+  void addEntryInMap(final String hostName, [final HttpClientAdapter? adapter]) {
+    final HttpClientAdapter? valueAdapter = _mapNetworkAdapter[hostName];
     if (valueAdapter == null) {
       _mapNetworkAdapter[hostName] = adapter ?? getHttp2Adapter;
     } else {
@@ -21,8 +21,8 @@ mixin NetworkMixin {
 
   Duration get _idealTimeOut => const Duration(seconds: 200);
 
-  HttpClientAdapter getHttpAdapter(String hostName) {
-    final entry = _mapNetworkAdapter[hostName];
+  HttpClientAdapter getHttpAdapter(final String hostName) {
+    final HttpClientAdapter? entry = _mapNetworkAdapter[hostName];
     if (entry == null) {
       _mapNetworkAdapter[hostName] = getHttp2Adapter;
     }
@@ -32,13 +32,13 @@ mixin NetworkMixin {
   HttpClientAdapter get getHttp2Adapter =>
       Http2Adapter(ConnectionManager(idleTimeout: _idealTimeOut),
           fallbackAdapter: ioHttpAdapter, onNotSupported: (
-        RequestOptions options,
-        Stream<Uint8List>? requestStream,
-        Future<void>? cancelFuture,
-        DioH2NotSupportedException exception,
+        final RequestOptions options,
+        final Stream<Uint8List>? requestStream,
+        final Future<void>? cancelFuture,
+        final DioH2NotSupportedException exception,
       ) {
-        final entry = _mapNetworkAdapter.keys.firstWhere(
-          (element) => element.contains(_getBaseUrl(options)),
+        final String entry = _mapNetworkAdapter.keys.firstWhere(
+          (final String element) => element.contains(_getBaseUrl(options)),
           orElse: () => '',
         );
         if (entry.isEmpty) {
@@ -47,7 +47,7 @@ mixin NetworkMixin {
         return ioHttpAdapter.fetch(options, requestStream, cancelFuture);
       });
 
-  String _getBaseUrl(RequestOptions options) {
+  String _getBaseUrl(final RequestOptions options) {
     if (options.baseUrl.isNotEmpty) {
       return options.baseUrl;
     } else {
@@ -61,7 +61,7 @@ mixin NetworkMixin {
     };
 
   void addEntryInMapWithIoAdapter(
-    String hostName,
+    final String hostName,
   ) {
     addEntryInMap(hostName, ioHttpAdapter);
   }

@@ -1,12 +1,9 @@
 
 import 'package:base_network/models/api_enums.dart';
-import 'package:dio/dio.dart';
 import 'package:mosl_network/network/dio_impl.dart';
 import 'package:mosl_network/network/helper/api_request_builder.dart';
 import 'package:mosl_network/network/helper/preferences.dart';
 import 'package:mosl_network/network/models/Login/AuthRequest.pb.dart' show TokenInfo, TokenResponse;
-import 'package:mosl_network/network/models/Login/LoginModels.pb.dart'
-    show TokenInfo, TokenResponse;
 
 class TokenRenewalRepository {
   TokenRenewalRepository._();

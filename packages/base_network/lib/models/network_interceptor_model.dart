@@ -1,22 +1,4 @@
 class IntercepterResponseModel {
-  final String createdAt;
-  final String responseHeader;
-  // final dynamic responseBody;
-  final String responseStatusCode;
-  final String responseStatusMessage;
-  final String responseSize;
-  final String requestHashCode;
-  final String? responseTime;
-  final String? origin;
-  final String? query;
-  final String? queryParam;
-  final String? method;
-  final String? accept;
-  final String? contentType;
-  final String? xApiVersion;
-  final String? userAgent;
-  final String? authorization;
-
   IntercepterResponseModel({
     required this.createdAt,
     required this.responseHeader,
@@ -37,8 +19,26 @@ class IntercepterResponseModel {
     this.authorization,
   });
 
+  final String createdAt;
+  final String responseHeader;
+  // final dynamic responseBody;
+  final String responseStatusCode;
+  final String responseStatusMessage;
+  final String responseSize;
+  final String requestHashCode;
+  final String? responseTime;
+  final String? origin;
+  final String? query;
+  final String? queryParam;
+  final String? method;
+  final String? accept;
+  final String? contentType;
+  final String? xApiVersion;
+  final String? userAgent;
+  final String? authorization;
+
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'createdAt': createdAt,
       'method': method,
       'origin': origin,

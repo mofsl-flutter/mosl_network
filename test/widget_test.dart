@@ -1,30 +1,72 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:base_network/models/api_enums.dart';
 import 'package:mosl_network/main.dart';
+import 'package:mosl_network/ui/download_screen.dart';
+import 'package:mosl_network/ui/json_screen.dart';
+import 'package:mosl_network/ui/proto_screen.dart';
+import 'package:mosl_network/ui/upload_screen.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('MyApp shows API action grid on launch', (tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('API Actions'), findsOneWidget);
+    expect(find.text('Get Proto'), findsOneWidget);
+    expect(find.text('Post Proto'), findsOneWidget);
+    expect(find.text('Get Json'), findsOneWidget);
+    expect(find.text('Post Json'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.drag(find.byType(GridView), const Offset(0, -300));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Upload File'), findsOneWidget);
+    expect(find.text('Download File'), findsOneWidget);
+  });
+
+  testWidgets('unknown route renders fallback screen', (tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    final context = tester.element(find.text('API Actions'));
+    Navigator.of(context).pushNamed('/missing');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Unknown route'), findsOneWidget);
+  });
+
+  testWidgets('button taps navigate to expected screens', (tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('Get Proto'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ProtoScreen), findsOneWidget);
+    expect(find.text(HttpMethod.get.name), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(GridView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Get Json'));
+    await tester.pumpAndSettle();
+    expect(find.byType(JsonScreen), findsOneWidget);
+    expect(find.text(HttpMethod.get.name), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(GridView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Upload File'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CameraUploadScreen), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Download File'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DownloadScreen), findsOneWidget);
   });
 }

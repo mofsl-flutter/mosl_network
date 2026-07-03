@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:base_network/models/api_enums.dart' show HttpMethod;
 import 'package:flutter/material.dart';
 import 'package:mosl_network/network/dio_impl.dart';

@@ -1,6 +1,7 @@
 name: base_network
 description: "A new Flutter package project."
 version: 0.0.1
+publish_to: none
 homepage:
 
 environment:
@@ -10,14 +11,15 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.8.0+1
-  intl : ^0.19.0
+  intl : ^0.20.2
   dio_brotli_transformer: ^2.0.0
   dio_http2_adapter: 2.6.0
   retry: ^3.1.2
   pretty_dio_logger: ^1.4.0
   protobuf: ^4.0.0
-  firebase_performance: ^0.10.1+5
+  firebase_performance: ^0.11.1+4
   firebase_performance_dio: ^0.7.1
+  path: ^1.9.0
   path_provider: ^2.1.5
   synchronized : ^3.3.1
   share_plus: ^7.0.2
@@ -29,11 +31,16 @@ dependencies:
   velocity_x:
     git:
       url: https://github.com/jeetmotilaloswal/VelocityX.git
-      ref: stable_4.3.1_locale_release
+      ref: stable
+  datadog_dio: ^1.1.0
+  datadog_flutter_plugin: ^2.15.0
+  path_provider_platform_interface: ^2.1.2
 
 
 dev_dependencies:
   flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
 
 dependency_overrides:
   visibility_detector: ^0.4.0+2

@@ -2,25 +2,15 @@
 import 'package:base_network/models/api_enums.dart';
 import "package:dio/dio.dart";
 
-final baseDioOptions = BaseOptions(
+final BaseOptions baseDioOptions = BaseOptions(
   connectTimeout: const Duration(seconds: 20),
   receiveTimeout: const Duration(seconds: 20),
   responseType: ResponseType.bytes,
 );
 
 class BaseDioOptions<T extends Object> {
-  late BaseOptions baseOptions;
-  final String url;
-  final T? request;
-  final T? rawRequest;
-  final HttpMethod requestType;
-  final CancelToken? cancelToken;
-  final ResponseType? responseType;
-  final ProgressCallback? onReceiveProgress;
-  final String? savePath;
-
   BaseDioOptions({
-    BaseOptions? baseOptions,
+    final BaseOptions? baseOptions,
     required this.url,
     this.request,
     this.rawRequest,
@@ -45,4 +35,14 @@ class BaseDioOptions<T extends Object> {
       this.baseOptions = this.baseOptions.copyWith(responseType: responseType);
     }
   }
+
+  late BaseOptions baseOptions;
+  final String url;
+  final T? request;
+  final T? rawRequest;
+  final HttpMethod requestType;
+  final CancelToken? cancelToken;
+  final ResponseType? responseType;
+  final ProgressCallback? onReceiveProgress;
+  final String? savePath;
 }

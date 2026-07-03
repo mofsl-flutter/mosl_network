@@ -10,9 +10,7 @@ abstract class BaseTokenManager {
   Future<bool>? _renewAccessTokenFuture;
 
   Future<bool> newAccessToken() {
-    return (_renewAccessTokenFuture ??= _getAccessToken()).whenComplete(() {
-      _tokenUpdated();
-    });
+    return (_renewAccessTokenFuture ??= _getAccessToken()).whenComplete(_tokenUpdated);
   }
 
   void _tokenUpdated() {
@@ -34,20 +32,20 @@ abstract class BaseTokenManager {
 * */
   Future<String> renewToken();
 
-  Future<SilentLoginStatus> callSilentLogin(bool isForce);
+  Future<SilentLoginStatus> callSilentLogin(final bool isForce);
 
   void handleSilentLoginFailure();
 
-  void writeLogs(String title, String message);
+  void writeLogs(final String title, final String message);
 
   bool get isTokenValid;
 
   bool get shouldCallRefreshToken;
 
   Future<bool> _getAccessToken() {
-    return renewToken().then((value) {
+    return renewToken().then((final String value) {
       return value.isNotEmpty;
-    }).onError((error, stackTrace) async {
+    }).onError((final Object? error, final StackTrace stackTrace) async {
       writeLogs("Trader TokenReview", "renewToken api call failed: $error");
       if (!isTokenValid) {
         return await _getRefreshToken();
@@ -58,13 +56,13 @@ abstract class BaseTokenManager {
         return await _getRefreshToken();
       }*/
       if (error is DioException) {
-        final challenge = error.response?.headers[authenticateHeaderMPin];
+        final List<String>? challenge = error.response?.headers[authenticateHeaderMPin];
         if (challenge is List<String> && challenge.isNotEmpty) {
           writeLogs("Trader TokenReview", "renewToken api call failed: Getting token from _getAccessToken now getting renew session");
-          if (!(challenge.any((challenge) =>
+          if (!(challenge.any((final String challenge) =>
               challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
             return await _getRefreshToken();
-          } else if ((challenge.any((challenge) =>
+          } else if ((challenge.any((final String challenge) =>
               challenge.contains(ApiConstants.reLoginRequiredChallenge)))) {
             writeLogs("Trader TokenReview", "renewToken api call failed: ReLoginRequired");
             return false;
@@ -83,12 +81,12 @@ abstract class BaseTokenManager {
 
   void refreshTokenIfNeeded() {
     if (!isTokenValid || shouldCallRefreshToken) {
-      _getRefreshToken();
+      unawaited(_getRefreshToken());
     }
   }
 
   Future<bool> _getRefreshToken() {
-    return callSilentLogin(true).then((value) {
+    return callSilentLogin(true).then((final SilentLoginStatus value) {
       if (value != SilentLoginStatus.success) {
         handleSilentLoginFailure();
       }
