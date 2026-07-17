@@ -4,9 +4,7 @@ enum HttpMethod {
   get,
   post,
   upload,
-  download,
-  delete,
-  put;
+  download;
 }
 
 extension HttpMethodExtension on HttpMethod {
@@ -20,10 +18,6 @@ extension HttpMethodExtension on HttpMethod {
         return fire_perf.HttpMethod.Post;
       case HttpMethod.download:
         return fire_perf.HttpMethod.Get;
-      case HttpMethod.delete:
-        return fire_perf.HttpMethod.Delete;
-      case HttpMethod.put:
-        return fire_perf.HttpMethod.Put;
     }
   }
 }
