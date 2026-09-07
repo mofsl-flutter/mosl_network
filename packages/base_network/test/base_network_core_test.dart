@@ -72,6 +72,75 @@ void main() {
       expect(error, isA<UnauthorizedCallFailure>());
     });
 
+    Response<dynamic> reLoginResponse(Map<String, List<String>> extraHeaders) {
+      return Response<dynamic>(
+        requestOptions: RequestOptions(path: '/x'),
+        statusCode: 401,
+        headers: Headers.fromMap({
+          'www-authenticate': ['Bearer realm="test", ReLoginRequired'],
+          ...extraHeaders,
+        }),
+      );
+    }
+
+    ApiCallError classify(Response<dynamic> response) => ApiCallError.callFailureDIO(
+          response,
+          Uri.parse('https://host.example.com/root/api/Login/Token'),
+        );
+
+    test('credential expired header is carried on SessionExpired', () {
+      final error = classify(reLoginResponse({
+        'x-credential-expired-msg': ['Your PIN has expired. Please log in again.'],
+      }));
+
+      expect(error, isA<SessionExpired>());
+      expect((error as SessionExpired).message,
+          'Your PIN has expired. Please log in again.');
+    });
+
+    test('credential expired header resolves regardless of casing', () {
+      final error = classify(reLoginResponse({
+        'X-Credential-Expired-Msg': ['Your password has expired.'],
+      }));
+
+      expect((error as SessionExpired).message, 'Your password has expired.');
+    });
+
+    test('blank credential expired header leaves message null', () {
+      for (final blank in <String>['', '   ']) {
+        final error = classify(reLoginResponse({
+          'x-credential-expired-msg': [blank],
+        }));
+
+        expect(error, isA<SessionExpired>());
+        expect((error as SessionExpired).message, isNull);
+      }
+    });
+
+    test('absent credential expired header leaves message null', () {
+      final error = classify(reLoginResponse({}));
+
+      expect(error, isA<SessionExpired>());
+      expect((error as SessionExpired).message, isNull);
+    });
+
+    test('multi valued credential expired header takes the first entry', () {
+      final error = classify(reLoginResponse({
+        'x-credential-expired-msg': ['First copy', 'Second copy'],
+      }));
+
+      expect((error as SessionExpired).message, 'First copy');
+    });
+
+    test('session out message keeps priority over the credential message', () {
+      final error = classify(reLoginResponse({
+        'www-authenticate-sessionoutmsg': ['You have been inactive'],
+        'x-credential-expired-msg': ['Your PIN has expired.'],
+      }));
+
+      expect(error, isA<NonFrequentSessionExpiredCallFailure>());
+    });
+
     test('api failure equality and request cancelled exception work', () {
       expect(const ApiFailure('oops', 1), const ApiFailure('oops', 1));
       expect(const DioRequestCancelledException().toString(), 'DioRequestCancelledException');

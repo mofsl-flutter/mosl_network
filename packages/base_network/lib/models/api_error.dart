@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 const String authenticateHeaderMPin = 'x-amzn-Remapped-WWW-Authenticate';
+const String credentialExpiredMsgHeader = 'x-credential-expired-msg';
 
 abstract class ApiCallError {
   const ApiCallError();
@@ -38,7 +39,16 @@ abstract class ApiCallError {
           return NonFrequentSessionExpiredCallFailure(
               endUrl, challenge[0], nonFrequentUserSessionOut[0]);
         }
-        return SessionExpired(endUrl, challenge[0]);
+        // PIN/password expiry: the server sends the copy to show instead of
+        // the generic session-expired message.
+        final List<String>? credentialExpiredMsg =
+            response.headers[credentialExpiredMsgHeader];
+        final String? credentialMessage = credentialExpiredMsg != null &&
+                credentialExpiredMsg.isNotEmpty &&
+                credentialExpiredMsg.first.trim().isNotEmpty
+            ? credentialExpiredMsg.first.trim()
+            : null;
+        return SessionExpired(endUrl, challenge[0], credentialMessage);
       }
     } else if (isFromRise || response.statusCode == 401) {
       return UnauthorizedCallFailure(endUrl, endUrl);
@@ -86,14 +96,18 @@ class ApiFailure extends ApiCallError {
 }
 
 class SessionExpired extends ApiCallError {
-  SessionExpired(this.endUrl, this.challenge);
+  SessionExpired(this.endUrl, this.challenge, [this.message]);
 
   final String endUrl;
   final String challenge;
 
+  /// Server-supplied copy from `X-Credential-Expired-Msg`; null when the
+  /// header was absent or empty, in which case the generic message is shown.
+  final String? message;
+
   @override
   String toString() {
-    return 'SessionExpired{endUrl: $endUrl, challenge: $challenge}';
+    return 'SessionExpired{endUrl: $endUrl, challenge: $challenge, message: $message}';
   }
 }
 

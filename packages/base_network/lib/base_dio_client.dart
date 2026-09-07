@@ -153,8 +153,10 @@ abstract class BaseDioClient with NetworkMixin, AuthMixin, MiscMixin {
               // ignore: only_throw_errors
               throw ReAuthRequired(callFailure.endUrl, callFailure.challenge);
             } else if (callFailure is SessionExpired) {
+              // Rethrow the classified instance rather than rebuilding it, so
+              // fields such as the credential-expiry message cannot be dropped.
               // ignore: only_throw_errors
-              throw SessionExpired(callFailure.endUrl, callFailure.challenge);
+              throw callFailure;
             }
           }
           rethrow;
